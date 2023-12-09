@@ -60,6 +60,14 @@ def plot_voltage_components(
             "Ohmic electrolyte overpotential",
             "Ohmic electrode overpotential",
         ]
+        colors = [
+            "seagreen",
+            "slateblue",
+            "fuchsia",
+            "darkmagenta",
+            "firebrick",
+        ]
+        fills = [None]*5
     else:
         overpotentials = [
             "Battery negative particle concentration overpotential [V]",
@@ -81,6 +89,26 @@ def plot_voltage_components(
             "Ohmic negative electrode overpotential",
             "Ohmic positive electrode overpotential",
         ]
+        colors = [
+            "darkgreen",
+            "seagreen",
+            "darkblue",
+            "slateblue",
+            "fuchsia",
+            "darkmagenta",
+            "firebrick",
+            "lightcoral",
+        ]
+        fills = [
+            '..',
+            None,
+            '..',
+            None,
+            '//',
+            '//',
+            '..',
+            None,
+        ]
 
     # Plot
     # Initialise
@@ -90,7 +118,7 @@ def plot_voltage_components(
         initial_ocv = ocv(0)
         ocv = ocv.entries
         ax.fill_between(
-            time, ocv, initial_ocv, **kwargs_fill, label="Open-circuit voltage"
+            time, ocv, initial_ocv, **kwargs_fill, label="Open-circuit voltage", color="saddlebrown"
         )
     else:
         ocp_n = solution["Battery negative electrode bulk open-circuit potential [V]"]
@@ -105,24 +133,27 @@ def plot_voltage_components(
             initial_ocv - delta_ocp_n,
             initial_ocv,
             **kwargs_fill,
-            label="Negative open-circuit potential"
+            label="Negative open-circuit potential",
+            color="saddlebrown",
+            hatch='..'
         )
         ax.fill_between(
             time,
             initial_ocv - delta_ocp_n + delta_ocp_p,
             initial_ocv - delta_ocp_n,
             **kwargs_fill,
-            label="Positive open-circuit potential"
+            label="Positive open-circuit potential",
+            color="peru"
         )
         ocv = initial_ocv - delta_ocp_n + delta_ocp_p
     top = ocv
     # Plot components
-    for overpotential, label in zip(overpotentials, labels):
+    for overpotential, label, color, fill in zip(overpotentials, labels, colors, fills):
         # negative overpotentials are positive for a discharge and negative for a charge
         # so we have to multiply by -1 to show them correctly
         sgn = -1 if "negative" in overpotential else 1
         bottom = top + sgn * solution[overpotential].entries
-        ax.fill_between(time, bottom, top, **kwargs_fill, label=label)
+        ax.fill_between(time, bottom, top, **kwargs_fill, label=label,hatch=fill,color=color)
         top = bottom
 
     V = solution["Battery voltage [V]"].entries
